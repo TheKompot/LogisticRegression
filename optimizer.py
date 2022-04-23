@@ -1,6 +1,9 @@
 import numpy as np
+from typing import Callable
 
-def DFP(x0:np.array,f:function, df:function, optimal_step:bool, backtrack_pam:dict = None, H:np.array=None, max_iter:int=1000, eps:float=1e-3)->np.array:
+def DFP(x0:np.array,f:Callable[[np.array],float], df:Callable[[np.array],np.array],
+        optimal_step:bool, backtrack_pam:dict = None, H:np.array=None,
+        max_iter:int=10000, eps:float=1e-3)->np.array:
     ''' 
     Uses DFP optimalization method to calculate minimum of function "f"
 
@@ -8,7 +11,7 @@ def DFP(x0:np.array,f:function, df:function, optimal_step:bool, backtrack_pam:di
     -----------
     x0 : np.array
         starting point
-    f : function
+    f : Callable[[np.array],float]
         function to be optimized
     df : function
         derivation of function "f"
@@ -18,7 +21,7 @@ def DFP(x0:np.array,f:function, df:function, optimal_step:bool, backtrack_pam:di
     H : np.array, optional
         matrix of the second derivation at point x0, default identity matrix
     max_iter : int, optional
-        maximal number of iteration, default 1000
+        maximal number of iteration, default 10 000
     eps : float, optional
         minimal norm of the gradient vector, before algorithm stops, default 0.001
     
@@ -37,13 +40,17 @@ def DFP(x0:np.array,f:function, df:function, optimal_step:bool, backtrack_pam:di
     for i in range(max_iter):
         s = -H@g  #direction
         if optimal_step:
-            c = bisection(lambda phi: df(x + phi*s))
+            c = bisection(lambda phi: df(x + phi*s)@s)
         else:
-            c = backtracking(f, x, s, g, delta=backtrack_pam['delta'], alpha=backtrack_pam['alpha'])
+            if backtrack_pam is not None:
+                c = backtracking(f, x, s, g, delta=backtrack_pam['delta'], alpha=backtrack_pam['alpha'])
+            else:
+                c = backtracking(f, x, s, g)
         new_x = x + c*s # new point
-        new_g = df(x2) #gradient
+        new_g = df(new_x) #gradient
 
         if np.linalg.norm(new_g) < eps: # norm of gradient smaller then eps -> end
+            x = new_x
             break
 
         y = new_g - g
@@ -71,7 +78,7 @@ def bisection(df,a0=0,b0=1,eps=1e-3,n=1000):
             b0 = c
     return c
 
-def backtracking(f, x, s, grad, delta, alpha,c=1):
+def backtracking(f, x, s, grad, delta=0.7, alpha=0.25,c=1):
     '''Searching sub-optimal step in the direction of "s" from "x" in function "f" '''
     fx = f(x)
     s_times_grad = np.inner(s, grad)
