@@ -1,6 +1,6 @@
 import numpy as np
 
-def DFP(x0:np.array, df:function, optimal_step:bool, H:np.array=None, max_iter:int=1000, eps:float=1e-3)->np.array:
+def DFP(x0:np.array,f:function, df:function, optimal_step:bool, backtrack_pam:dict = None, H:np.array=None, max_iter:int=1000, eps:float=1e-3)->np.array:
     ''' 
     Uses DFP optimalization method to calculate minimum of function, which derivation is "df"
 
@@ -29,12 +29,15 @@ def DFP(x0:np.array, df:function, optimal_step:bool, H:np.array=None, max_iter:i
     x = x0
     g = df(x) #gradient
 
+    if H is None:
+        H = np.identity(len(x))
+
     for i in range(max_iter):
         s = -H@g  #direction
         if optimal_step:
             c = bisection()
         else:
-            c = backtracking()
+            c = backtracking(f, x, s, g, delta=backtrack_pam['delta'], alpha=backtrack_pam['alpha'])
         new_x = x + c*s # new point
         new_g = df(x2) #gradient
 
@@ -55,5 +58,10 @@ def DFP(x0:np.array, df:function, optimal_step:bool, H:np.array=None, max_iter:i
 def bisection():
     return 0
 
-def backtracking():
-    return 0
+def backtracking(f, x, s, grad, delta, alpha,c=1):
+    
+    fx = f(x)
+    s_times_grad = np.inner(s, grad)
+    while f(x + c*s) > fx + alpha * c * s_times_grad:
+        c = c*delta
+    return c
