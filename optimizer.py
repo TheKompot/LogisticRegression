@@ -13,11 +13,15 @@ def DFP(x0:np.array,f:Callable[[np.array],float], df:Callable[[np.array],np.arra
         starting point
     f : Callable[[np.array],float]
         function to be optimized
-    df : function
+    df : Callable[[np.array],np.array]
         derivation of function "f"
     optimal_step : bool:
         if True, function will use bisection method to calculate the lenght of step 
         if False, function will use backtracking method to calculate the lenght of step
+    backtrack_pam : dict, optional
+        aditional parameters when using backtracking for getting step size, must have:
+            alpha:float - no fucking clue what this is, default 0.25
+            delta:float - fraction by which the step will be decreased, default 0.7
     H : np.array, optional
         matrix of the second derivation at point x0, default identity matrix
     max_iter : int, optional
