@@ -28,5 +28,34 @@ def DFP(x0:np.array,f:function, df:function, optimal_step:bool, H:np.array=None,
         point where the minimum of function "f" was calculated
     '''
 
-    return np.zeros(len(x0))
+    x = x0
+    g = df(x) #gradient
 
+    for i in range(max_iter):
+        s = -H@g  #direction
+        if optimal_step:
+            c = bisection()
+        else:
+            c = backtracking()
+        new_x = x + c*s # new point
+        new_g = df(x2) #gradient
+
+        if np.linalg.norm(new_g) < eps: # norm of gradient smaller then eps -> end
+            break
+
+        y = new_g - g
+        p = new_x - x
+
+        deltaH = (1/np.inner(p,y))*np.outer(p,p) - (1/(y@H@y))*(H@np.outer(y,y)@H) #DFP formula
+
+        H = H + deltaH
+        x = new_x
+        g = new_g
+        
+    return x
+
+def bisection():
+    return 0
+
+def backtracking():
+    return 0
