@@ -1,17 +1,15 @@
 import numpy as np
 
-def DFP(x0:np.array,f:function, df:function, optimal_step:bool, H:np.array=None, max_iter:int=1000, eps:float=1e-3)->np.array:
+def DFP(x0:np.array, df:function, optimal_step:bool, H:np.array=None, max_iter:int=1000, eps:float=1e-3)->np.array:
     ''' 
-    Uses DFP optimalization method to calculate minimum of function "f"
+    Uses DFP optimalization method to calculate minimum of function, which derivation is "df"
 
     Parameters:
     -----------
     x0 : np.array
         starting point
-    f : functiom
-        function to optimize
     df : function
-        derivation of function "f"
+        derivation of function, which will be optimized
     optimal_step : bool:
         if True, function will use bisection method to calculate the lenght of step 
         if False, function will use backtracking method to calculate the lenght of step
@@ -20,12 +18,12 @@ def DFP(x0:np.array,f:function, df:function, optimal_step:bool, H:np.array=None,
     max_iter : int, optional
         maximal number of iteration, default 1000
     eps : float, optional
-        minimal change of function value f, before algorithm stops, default 0.001
+        minimal norm of the gradient vector, before algorithm stops, default 0.001
     
     Returns
     --------
     x_opt : np.array
-        point where the minimum of function "f" was calculated
+        point where the minimum was calculated
     '''
 
     x = x0
