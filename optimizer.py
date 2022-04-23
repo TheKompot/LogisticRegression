@@ -1,11 +1,11 @@
 import numpy as np
 from typing import Callable
 
-def DFP(x0:np.array,f:Callable[[np.array],float], df:Callable[[np.array],np.array],
-        optimal_step:bool, backtrack_pam:dict = None, H:np.array=None,
+def optimize(x0:np.array,f:Callable[[np.array],float], df:Callable[[np.array],np.array],
+        method:str, optimal_step:bool, backtrack_pam:dict = None, H:np.array=None,
         max_iter:int=10000, eps:float=1e-3)->np.array:
     ''' 
-    Uses DFP optimalization method to calculate minimum of function "f"
+    Uses quasi newton optimalization methods to calculate minimum of function "f"
 
     Parameters:
     -----------
@@ -15,6 +15,8 @@ def DFP(x0:np.array,f:Callable[[np.array],float], df:Callable[[np.array],np.arra
         function to be optimized
     df : Callable[[np.array],np.array]
         derivation of function "f"
+    method : str
+        either "DFP" or "BFGS"
     optimal_step : bool:
         if True, function will use bisection method to calculate the lenght of step 
         if False, function will use backtracking method to calculate the lenght of step
@@ -60,7 +62,12 @@ def DFP(x0:np.array,f:Callable[[np.array],float], df:Callable[[np.array],np.arra
         y = new_g - g
         p = new_x - x
 
-        deltaH = (1/np.inner(p,y))*np.outer(p,p) - (1/(y@H@y))*(H@np.outer(y,y)@H) #DFP formula
+        if method == "DFP":
+            deltaH = (1/np.inner(p,y))*np.outer(p,p) - (1/(y@H@y))*(H@np.outer(y,y)@H) #DFP formula
+        elif method == "BFGS":
+            deltaH = (1 + (y@H@y)/(p@y)) * np.outer(p,p)/(p@y) - (H@np.outer(y,p) + np.outer(p,y)@H)/(p@y)  #BFGS formula
+        else:
+            AttributeError("Method not implemented")
 
         H = H + deltaH
         x = new_x
