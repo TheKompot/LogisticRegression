@@ -3,7 +3,7 @@ from typing import Callable
 
 def optimize(x0:np.array,f:Callable[[np.array],float], df:Callable[[np.array],np.array],
         method:str, optimal_step:bool, backtrack_pam:dict = None, H:np.array=None,
-        max_iter:int=10000, eps:float=1e-3)->np.array:
+        max_iter:int=10000, eps:float=1e-3)->list:
     ''' 
     Uses quasi newton optimalization methods to calculate minimum of function "f"
 
@@ -33,8 +33,8 @@ def optimize(x0:np.array,f:Callable[[np.array],float], df:Callable[[np.array],np
     
     Returns
     --------
-    x_opt : np.array
-        point where the minimum was calculated
+    x_list : list
+        list of where on the i-th position is the optimal x found at the i-th iteration
     '''
 
     x = x0
@@ -42,6 +42,8 @@ def optimize(x0:np.array,f:Callable[[np.array],float], df:Callable[[np.array],np
 
     if H is None:
         H = np.identity(len(x))
+
+    x_list = [x0]
 
     for i in range(max_iter):
         s = -H@g  #direction
@@ -55,8 +57,9 @@ def optimize(x0:np.array,f:Callable[[np.array],float], df:Callable[[np.array],np
         new_x = x + c*s # new point
         new_g = df(new_x) #gradient
 
+        x_list.append(new_x)
+
         if np.linalg.norm(new_g) < eps: # norm of gradient smaller then eps -> end
-            x = new_x
             break
 
         y = new_g - g
@@ -73,7 +76,7 @@ def optimize(x0:np.array,f:Callable[[np.array],float], df:Callable[[np.array],np
         x = new_x
         g = new_g
         
-    return x
+    return x_list
 
 def bisection(df,a0=0,b0=1,eps=1e-3,n=1000):
     '''Searching minimum between "a0" and "b0" of a 1d function, which is antiderivation of "df"'''
