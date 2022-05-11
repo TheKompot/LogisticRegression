@@ -22,7 +22,7 @@ def optimize(x0:np.array,f:Callable[[np.array],float], df:Callable[[np.array],np
         if False, function will use backtracking method to calculate the lenght of step
     backtrack_pam : dict, optional
         aditional parameters when using backtracking for getting step size, must have:
-            alpha:float - no fucking clue what this is, default 0.25
+            alpha:float - coefficient for the upper bound, default 0.25
             delta:float - fraction by which the step will be decreased, default 0.7
     H : np.array, optional
         matrix of the second derivation at point x0, default identity matrix
